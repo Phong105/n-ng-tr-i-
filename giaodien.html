@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nông Trại Hay Day - Happy 20/10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-top: #fdfbfb;
+            --bg-bottom: #fce4ec;
+            --primary: #d81b60;
+            --secondary: #f06292;
+            --text: #4a4a4a;
+            --card-bg: rgba(255, 255, 255, 0.88);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+
+        /* Hiệu ứng cánh hoa rơi nền */
+        #petals-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            top: -10%;
+            background: #f8bbd0;
+            border-radius: 150% 0 150% 0;
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0vh) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* Tiêu đề & Thanh tiến trình */
+        header {
+            text-align: center;
+            z-index: 2;
+            margin-bottom: 35px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.4rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 6px rgba(216, 27, 96, 0.12);
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: #6d6d6d;
+            max-width: 520px;
+            line-height: 1.6;
+        }
+
+        .progress-badge {
+            margin-top: 15px;
+            display: inline-block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.75);
+            padding: 8px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(216, 27, 96, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        /* Lưới Khu Vườn */
+        .garden {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            max-width: 680px;
+            width: 100%;
+            z-index: 2;
+            place-items: center;
+        }
+
+        .flower-item {
+            background: var(--card-bg);
+            width: 145px;
+            height: 145px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(216, 27, 96, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(6px);
+        }
+
+        .flower-item:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(216, 27, 96, 0.18);
+        }
+
+        .flower-icon {
+            font-size: 3.2rem;
+            transition: transform 0.5s ease;
+            filter: grayscale(35%);
+        }
+
+        .flower-item.bloomed .flower-icon {
+            filter: grayscale(0%);
+            transform: scale(1.15);
+        }
+
+        .flower-item.bloomed {
+            border-color: var(--secondary);
+            background: #fff;
+        }
+
+        .flower-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+            color: #666;
+        }
+
+        /* Bông hoa đặc biệt ở trung tâm */
+        .flower-item.special {
+            width: 165px;
+            height: 165px;
+            background: linear-gradient(135deg, #fff5f8 0%, #fce4ec 100%);
+            border: 2px dashed var(--secondary);
+        }
+
+        .flower-item.special.locked {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .flower-item.special.unlocked {
+            border: 3px solid var(--primary);
+            animation: pulse 2s infinite;
+            cursor: pointer;
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(216, 27, 96, 0.35); }
+            70% { box-shadow: 0 0 0 18px rgba(216, 27, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(216, 27, 96, 0); }
+        }
+
+        /* Hộp thư (Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #fff;
+            max-width: 460px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 24px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            transform: translateY(25px) scale(0.95);
+            transition: all 0.35s ease;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-icon {
+            font-size: 2.8rem;
+            margin-bottom: 6px;
+        }
+
+        .modal-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 14px;
+        }
+
+        /* Khung ảnh kỷ niệm kiểu Polaroid */
+        .modal-image-wrapper {
+            margin: 0 auto 18px auto;
+            max-width: 280px;
+            background: #fff;
+            padding: 8px 8px 18px 8px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border: 1px solid #f0f0f0;
+            transform: rotate(-1.5deg);
+            transition: transform 0.3s ease;
+            display: none; /* Mặc định ẩn, chỉ hiện khi có ảnh */
+        }
+
+        .modal-image-wrapper:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .modal-text {
+            font-size: 1.02rem;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 22px;
+        }
+
+        .close-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 25px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.25s;
+        }
+
+        .close-btn:hover {
+            background: #ad1457;
+        }
+
+        @media (max-width: 550px) {
+            h1 { font-size: 2.6rem; }
+            .garden { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+            .flower-item.special { grid-column: span 2; }
+            .music-toggle { top: 12px; right: 12px; padding: 6px 12px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+
+    <div id="petals-container"></div>
+
+    <header>
+        <h1>Nông Trại Hay Day</h1>
+        <p class="subtitle">chạm vào từng nụ hoa để mở ra những điều siêu siu ngọt ngào của bin ù dành cho bé nhân ngày 20/10 nho</p>
+        <div class="progress-badge" id="progressText">Đã thu hoạch: 0 / 4 bông hoa kỷ niệm</div>
+    </header>
+
+    <main class="garden">
+        <div class="flower-item" data-id="0" onclick="openFlower(0)">
+            <div class="flower-icon" id="icon-0">🌱</div>
+            <span class="flower-label">Nụ cừi hẹp pi</span>
+        </div>
+
+        <div class="flower-item" data-id="1" onclick="openFlower(1)">
+            <div class="flower-icon" id="icon-1">🌱</div>
+            <span class="flower-label">Nụ cười của bé</span>
+        </div>
+
+        <div class="flower-item special locked" id="specialFlower" onclick="openSpecialFlower()">
+            <div class="flower-icon" id="icon-special">🔒</div>
+            <span class="flower-label">Bông Hoa Bí Mật</span>
+        </div>
+
+        <div class="flower-item" data-id="2" onclick="openFlower(2)">
+            <div class="flower-icon" id="icon-2">🌱</div>
+            <span class="flower-label">Những lúc cùng nhau </span>
+        </div>
+
+        <div class="flower-item" data-id="3" onclick="openFlower(3)">
+            <div class="flower-icon" id="icon-3">🌱</div>
+            <span class="flower-label">hành trình phía trước</span>
+        </div>
+    </main>
+
+    <!-- Hộp thư hiển thị lời chúc & hình ảnh -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-card">
+            <div class="modal-icon" id="modalIcon">🌸</div>
+            <h2 class="modal-title" id="modalTitle">Tiêu đề</h2>
+            
+            <!-- Khung chứa ảnh kỷ niệm -->
+            <div class="modal-image-wrapper" id="modalImageWrapper">
+                <img src="" alt="Kỷ niệm của tụi mình" class="modal-image" id="modalImage" onerror="this.parentElement.style.display='none'">
+            </div>
+
+            <p class="modal-text" id="modalText">Nội dung lời chúc...</p>
+            <button class="close-btn" onclick="closeModal()">Giữ vào tim ❤️</button>
+        </div>
+    </div>
+
+    <script>
+        // CẤU HÌNH DỮ LIỆU HOA VÀ ẢNH KỶ NIỆM TẠI ĐÂY
+        // Hãy đổi đường dẫn trong thuộc tính "image" thành "images/anh1.jpg"... khi bạn đã có ảnh trong thư mục
+        const flowersData = [
+            {
+                title: "Nụ cừi hẹp pi",
+                icon: "🌷",
+                image: "images/image4.jpg", 
+                text: "Khi ở cùng dới bé là bin lúc nào cũng tươi cừi giống dị hết, em bé lun làm bin dui dui dui"
+            },
+            {
+                title: "Nụ Cười Của Bé",
+                icon: "🌻",
+                image: "images/image1.jpg",
+                text: "mỗi lần bin nhìn em bé cười, bin thấy em bé cụa mìn dethuong dì đou á, cảm thấy mìn là người may mắn nhức nhức nhức lum"
+            },
+            {
+                title: "Những lúc cùng nhau đi chơi",
+                icon: "🪻",
+                image: "images/image2.jpg",
+                text: "khi đi chơi dới bé á, bin nghe bé kể chiện nè, nghe bé hát nựa, ăn dới bé, những lúc đó bin siu cảm thấy bình yên lum á, cảm giác siu chữa lành lum, em bé cụa mìn là tuỵt nhất"
+            },
+            {
+                title: "Hành Trình Phía Trước",
+                icon: "🌺",
+                image: "images/image5.jpg",
+                text: "Cảm ơn bé đã luôn kiên nhẫn, dịu dàng và đồng hành cùng bin ù, có em bé mà bin cảm thấy những khó khăn của bin nó hông còn chông gai nựa lum"
+            }
+        ];
+
+        const specialData = {
+            title: "Chúc Mừng 20/10 Bé Yêu Của Bin Ù!",
+            icon: "🌹",
+            image: "images/image6.jpg",
+            text: "bin muốn nói dới bé là em bé là bông hoa xinh đẹp nhất của bin ù, chúc bé 20/11 thật là duiiii dẻ, bin sẽ lun đồng hành cùng bé qua nhìu khó khăn nhooo, đặc biệt là phải thật là hạnh phúc lumm"
+        };
+
+        const bloomedSet = new Set();
+        let isMusicPlaying = false;
+        let hasInteractedMusic = false;
+
+        // Xử lý bật/tắt nhạc nền
+        function toggleMusic() {
+            const audio = document.getElementById('bgMusic');
+            const btn = document.getElementById('musicBtn');
+            const icon = document.getElementById('musicIcon');
+            const text = document.getElementById('musicText');
+
+            if (isMusicPlaying) {
+                audio.pause();
+                isMusicPlaying = false;
+                btn.classList.remove('playing');
+                icon.textContent = '🔇';
+                text.textContent = 'Bật nhạc';
+            } else {
+                audio.play().then(() => {
+                    isMusicPlaying = true;
+                    btn.classList.add('playing');
+                    icon.textContent = '💿';
+                    text.textContent = 'Đang phát';
+                }).catch(() => {
+                    console.log("Chưa tìm thấy file nhạc bgm.mp3 hoặc trình duyệt chặn phát tự động.");
+                });
+            }
+        }
+
+        // Tự động phát nhạc ở lần chạm đầu tiên của bé
+        function tryAutoPlayMusic() {
+            if (!hasInteractedMusic && !isMusicPlaying) {
+                hasInteractedMusic = true;
+                toggleMusic();
+            }
+        }
+
+        function openFlower(index) {
+            tryAutoPlayMusic();
+            const data = flowersData[index];
+            const item = document.querySelector(`.flower-item[data-id="${index}"]`);
+            const iconEl = document.getElementById(`icon-${index}`);
+
+            if (!bloomedSet.has(index)) {
+                bloomedSet.add(index);
+                item.classList.add('bloomed');
+                iconEl.textContent = data.icon;
+                updateProgress();
+            }
+
+            showModal(data.icon, data.title, data.text, data.image);
+        }
+
+        function updateProgress() {
+            const count = bloomedSet.size;
+            const progressText = document.getElementById('progressText');
+            progressText.textContent = `Đã thu hoạch: ${count} / ${flowersData.length} bông hoa kỷ niệm`;
+
+            if (count === flowersData.length) {
+                const special = document.getElementById('specialFlower');
+                const specialIcon = document.getElementById('icon-special');
+                special.classList.remove('locked');
+                special.classList.add('unlocked');
+                specialIcon.textContent = '✨🌹✨';
+                progressText.textContent = "Thu hoạch đủ rồi! Bé hãy chạm vào Bông Hoa Bí Mật ở giữa nho 💖";
+            }
+        }
+
+        function openSpecialFlower() {
+            tryAutoPlayMusic();
+            if (bloomedSet.size < flowersData.length) {
+                showModal("🔒", "Chưa Mở Khóa Đâu Nho!", "Bé hãy chạm để thu hoạch hết 4 nụ hoa xung quanh trước khi khám phá bí mật của bin ù ở đây nhé!", "");
+                return;
+            }
+            showModal(specialData.icon, specialData.title, specialData.text, specialData.image);
+        }
+
+        function showModal(icon, title, text, imageUrl) {
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+
+            const imgWrapper = document.getElementById('modalImageWrapper');
+            const imgEl = document.getElementById('modalImage');
+
+            if (imageUrl && imageUrl.trim() !== "") {
+                imgWrapper.style.display = 'block';
+                imgEl.src = imageUrl;
+            } else {
+                imgWrapper.style.display = 'none';
+                imgEl.src = "";
+            }
+
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== document.getElementById('modalOverlay')) return;
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // Tạo hiệu ứng cánh hoa rơi
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            for (let i = 0; i < 18; i++) {
+                const petal = document.createElement('div');
+                petal.classList.add('petal');
+                const size = Math.random() * 12 + 8;
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size}px`;
+                petal.style.left = `${Math.random() * 100}vw`;
+                petal.style.animationDuration = `${Math.random() * 6 + 6}s`;
+                petal.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(petal);
+            }
+        }
+
+        createPetals();
+    </script>
+</body>
+</html>
